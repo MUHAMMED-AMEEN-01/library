@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rook | Splash Screen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                    },
+                    colors: {
+                        rook: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9', // Sky blue for accents
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'progress': 'progress 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(40px) scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        progress: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '50%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Glassmorphism Utilities */
+        .glass-light {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Hide scrollbar for mobile feel */
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<!-- 
+    Body Layout:
+    - Flex column to center content vertically and horizontally.
+    - Transition-colors ensures smooth switching between dark/light modes.
+-->
+<body class="h-screen w-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-700 ease-in-out flex flex-col justify-center items-center relative selection:bg-rook-500 selection:text-white">
+
+    <!-- Theme Toggle (For Demo/Preview Purposes) -->
+    <button id="theme-toggle" class="absolute top-6 right-6 p-3 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-lg backdrop-blur-sm text-slate-600 dark:text-slate-300 hover:scale-110 active:scale-95 transition-all duration-300 z-50 ring-1 ring-slate-200 dark:ring-slate-700">
+        <i class="fas fa-moon text-lg dark:hidden"></i>
+        <i class="fas fa-sun text-lg hidden dark:block text-amber-400"></i>
+    </button>
+
+    <!-- Background Elements (Subtle Gradients) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <!-- Top Left Blob -->
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-rook-500/20 dark:bg-rook-600/10 rounded-full blur-3xl animate-pulse duration-[4000ms]"></div>
+        <!-- Bottom Right Blob -->
+        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-purple-500/20 dark:bg-indigo-600/10 rounded-full blur-3xl animate-pulse duration-[5000ms]"></div>
+    </div>
+
+    <!-- Main Splash Content -->
+    <div class="z-10 flex flex-col items-center justify-center w-full px-6">
+        
+        <!-- Logo Assembly -->
+        <div class="relative mb-10 group animate-slide-up">
+            <!-- Decorative spinning ring behind logo -->
+            <div class="absolute inset-0 bg-gradient-to-tr from-rook-500 to-purple-500 rounded-[2rem] rotate-6 opacity-20 blur-md group-hover:rotate-12 transition-transform duration-700"></div>
+            
+            <!-- Main Logo Card -->
+            <div class="relative h-32 w-32 flex items-center justify-center rounded-[2rem] shadow-2xl shadow-rook-500/20 dark:shadow-black/50 animate-float bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                <!-- Replaced Icon with Image -->
+                <img src="light_blue1 512.png" alt="Rook Logo" class="w-24 h-24 object-contain filter drop-shadow-sm transform transition-transform duration-500 group-hover:scale-110">
+                
+                <!-- Shine effect -->
+                <div class="absolute top-0 left-0 w-full h-full rounded-[2rem] overflow-hidden opacity-50 pointer-events-none">
+                    <div class="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-to-b from-white/20 to-transparent rotate-45 transform translate-y-full group-hover:translate-y-0 transition-transform duration-700"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Name -->
+        <div class="text-center animate-slide-up" style="animation-delay: 0.1s;">
+            <h1 class="text-5xl font-extrabold tracking-tighter text-slate-900 dark:text-white mb-2">
+                Rook
+            </h1>
+            <p class="text-sm font-semibold tracking-[0.2em] uppercase text-slate-400 dark:text-slate-500">
+                Read. Return. Repeat.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Footer / Loader Area -->
+    <div class="absolute bottom-12 w-full flex flex-col items-center justify-center gap-4 animate-fade-in opacity-0" style="animation-delay: 0.5s;">
+        
+        <!-- Loading Bar -->
+        <div class="w-48 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
+            <!-- Animated Progress -->
+            <div class="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-rook-500 to-transparent w-1/2 animate-progress rounded-full"></div>
+        </div>
+
+        <!-- Version / Status -->
+        <div class="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-600">
+            <i class="fas fa-shield-alt"></i>
+            <span>Securing Connection...</span>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle Logic for the Preview
+        const toggleBtn = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        // Check for saved user preference, if any, on load of the storage
+        const savedTheme = localStorage.getItem('theme');
+        
+        // Initial Theme Setup
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+
+        // Toggle Event
+        toggleBtn.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>

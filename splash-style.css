@@ -1,0 +1,113 @@
+/* splash-style.css */
+
+/* 1. The Overlay - Covers the whole screen */
+#global-splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #0f172a; /* Deep Dark Blue/Slate */
+    z-index: 999999; /* Highest priority */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    
+    /* Smooth Fade Out */
+    opacity: 1;
+    transition: opacity 0.6s ease, visibility 0.6s;
+}
+
+/* 2. The Content Box */
+.splash-content {
+    text-align: center;
+    color: white;
+    animation: splashSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 3. Logo Container */
+.splash-logo-container {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 20px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); /* Soft Blue Glow */
+    position: relative;
+}
+
+.splash-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+/* 4. Typography */
+.splash-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    color: #f0f9ff;
+    letter-spacing: -0.02em;
+}
+
+.splash-subtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #94a3b8; /* Muted slate text */
+    margin-bottom: 3rem;
+}
+
+/* 5. Loading Bar */
+.splash-loader {
+    width: 220px;
+    height: 4px;
+    background: #1e293b; /* Dark rail */
+    border-radius: 10px;
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.splash-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 40%;
+    background: #38bdf8; /* Sky Blue */
+    box-shadow: 0 0 10px #38bdf8;
+    border-radius: 10px;
+    animation: splashProgress 1.2s infinite ease-in-out;
+}
+
+.splash-status {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 10px;
+}
+
+/* 6. Animations */
+@keyframes splashSlideUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashProgress {
+    0% { left: -40%; }
+    50% { left: 30%; width: 60%; }
+    100% { left: 100%; width: 40%; }
+}
+
+/* Utility to hide */
+.splash-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
+}
