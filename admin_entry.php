@@ -1,5 +1,13 @@
 <?php
+session_start();
 include 'db_connect.php';
+
+// Security Check
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header("Location: admin_login.php");
+    exit();
+}
+
 $msg = "";
 
 // --- DELETE LOGIC ---
@@ -11,7 +19,7 @@ if (isset($_GET['delete_book'])) {
 if (isset($_GET['delete_student'])) {
     $id = $_GET['delete_student'];
     $conn->query("DELETE FROM patrons WHERE id=$id");
-    $msg = "<div class='alert success'>Student deleted successfully.</div>";
+    $msg = "<div class='alert success'>Patron deleted successfully.</div>";
 }
 
 // --- INSERT BOOK LOGIC ---
@@ -28,14 +36,15 @@ if (isset($_POST['add_book'])) {
     else { $msg = "<div class='alert error'>Error: " . $conn->error . "</div>"; }
 }
 
-// --- INSERT STUDENT LOGIC ---
+// --- INSERT PATRON LOGIC (Updated for Category) ---
 if (isset($_POST['add_student'])) {
     $name = $_POST['full_name'];
-    $admission = $_POST['card_number']; // Admission Number
+    $admission = $_POST['card_number']; 
     $phone = $_POST['phone'];
+    $category = $_POST['category']; // UG, PG, or Staff
     
-    $sql = "INSERT INTO patrons (full_name, card_number, phone) VALUES ('$name', '$admission', '$phone')";
-    if($conn->query($sql)) { $msg = "<div class='alert success'>Student Added!</div>"; } 
+    $sql = "INSERT INTO patrons (full_name, card_number, phone, category) VALUES ('$name', '$admission', '$phone', '$category')";
+    if($conn->query($sql)) { $msg = "<div class='alert success'>Patron Added!</div>"; } 
     else { $msg = "<div class='alert error'>Error: Admission Number likely exists.</div>"; }
 }
 ?>
@@ -48,67 +57,73 @@ if (isset($_POST['add_student'])) {
     <link rel="stylesheet" href="splash-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { background-color: #f3f3f3; font-family: 'Segoe UI', sans-serif; }
-        .admin-header { background: #2c3e50; padding: 1rem; color: white; display:flex; justify-content:space-between; align-items: center; }
+        /* Shared Theme Styles */
+        :root { --primary: #2c3e50; --secondary: #3498db; --accent: #e74c3c; --text: #333; --bg: #f3f3f3; --card-bg: #fff; --border: #eee; }
+        [data-theme="dark"] { --primary: #1a1a2e; --secondary: #4cc9f0; --accent: #f72585; --text: #f8f9fa; --bg: #121212; --card-bg: #1e1e1e; --border: #333; }
+
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
+        .admin-header { background: var(--primary); padding: 1rem; color: white; display:flex; justify-content:space-between; align-items: center; }
         .admin-header a { color: white; text-decoration: none; margin-left: 15px; }
+        
         .container { display: flex; max-width: 1300px; margin: 20px auto; gap: 20px; }
         
-        .sidebar { width: 200px; background: white; padding: 15px; height: fit-content; border-radius: 4px; }
-        .sidebar a { display: block; padding: 10px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; }
-        .sidebar a:hover { color: #3498db; background: #f9f9f9; }
+        .sidebar { width: 200px; background: var(--card-bg); padding: 15px; height: fit-content; border-radius: 4px; border: 1px solid var(--border); }
+        .sidebar a { display: block; padding: 10px; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
+        .sidebar a:hover { color: var(--secondary); background: rgba(52, 152, 219, 0.1); }
 
         .main-content { flex: 1; display: flex; gap: 20px; flex-wrap: wrap; }
         
-        .card { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 1; min-width: 45%; }
-        h2 { margin-top: 0; border-bottom: 2px solid #85ca11; padding-bottom: 10px; font-size: 1.2rem; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 1; min-width: 45%; border: 1px solid var(--border); }
+        h2 { margin-top: 0; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 1.2rem; color: var(--primary); }
+        [data-theme="dark"] h2 { color: var(--secondary); }
         
-        /* Forms */
-        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
-        .btn-add { background: #3498db; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
-        .btn-add:hover { background: #2980b9; }
-
-        /* Tables */
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; background: var(--bg); color: var(--text); }
+        .btn-add { background: var(--secondary); color: white; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
-        th { background: #f8f9fa; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
-        td { padding: 8px; border-bottom: 1px solid #eee; }
+        th { background: rgba(0,0,0,0.05); text-align: left; padding: 8px; border-bottom: 2px solid var(--border); }
+        td { padding: 8px; border-bottom: 1px solid var(--border); }
         
         .action-btn { padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 0.8rem; margin-right: 5px; }
         .edit { background: #f39c12; color: white; }
-        .delete { background: #e74c3c; color: white; }
+        .delete { background: var(--accent); color: white; }
         
         .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .success { background: #dff0d8; color: #3c763d; }
-        .error { background: #f2dede; color: #a94442; }
+        .success { background: rgba(46, 204, 113, 0.2); color: #27ae60; }
+        .error { background: rgba(231, 76, 60, 0.2); color: #c0392b; }
+        
+        .theme-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
 <div class="admin-header">
-    <div><strong>Rook Data Management</strong></div>
-    <div><a href="books.php" target="_blank">View Public Site</a></div>
+    <div><strong>Rook Management</strong></div>
+    <div>
+        <button class="theme-toggle" id="themeBtn"><i class="fas fa-moon"></i></button>
+        <span style="margin: 0 15px;">Welcome, <?php echo $_SESSION['admin_name']; ?></span>
+        <a href="admin_logout.php" style="color: var(--accent);">Logout</a>
+    </div>
 </div>
 
 <div class="container">
     <div class="sidebar">
-        <a href="admin_manage.php" style="font-weight:bold; color:#3498db;">Manage Data</a>
-        <a href="admin_circulation.php">Circulation</a>
+        <a href="admin_entry.php" style="font-weight:bold; color:var(--secondary);">Manage Data</a>
+        <a href="admin_circulation.php">Circulation & Fines</a>
     </div>
 
     <div class="main-content">
         <div style="width:100%"><?php echo $msg; ?></div>
 
-        <!-- LEFT COLUMN: BOOKS -->
         <div class="card">
             <h2><i class="fas fa-book"></i> Manage Books</h2>
-            
-            <!-- ADD BOOK FORM -->
-            <form method="POST" style="background:#f9f9f9; padding:15px; margin-bottom:20px; border:1px solid #eee;">
+            <form method="POST">
                 <strong>Add New Book</strong>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                     <input type="text" name="title" placeholder="Title" required>
                     <input type="text" name="author" placeholder="Author" required>
-                    <input type="text" name="call_number" placeholder="Call No (Unique)" required>
-                    <input type="text" name="shelf_number" placeholder="Shelf Location">
+                    <input type="text" name="call_number" placeholder="Call No" required>
+                    <input type="text" name="shelf_number" placeholder="Shelf">
                     <input type="text" name="genre" placeholder="Genre">
                     <select name="language">
                         <option value="English">English</option>
@@ -119,23 +134,15 @@ if (isset($_POST['add_student'])) {
                 </div>
                 <button type="submit" name="add_book" class="btn-add">Add Book</button>
             </form>
-
-            <!-- BOOK LIST -->
-            <div style="max-height: 400px; overflow-y: auto;">
+            
+            <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
                 <table>
-                    <thead><tr><th>Title</th><th>Call No</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Title</th><th>Action</th></tr></thead>
                     <tbody>
-                        <?php
-                        $res = $conn->query("SELECT * FROM books ORDER BY id DESC");
-                        while($row = $res->fetch_assoc()){
-                            echo "<tr>
-                                <td>{$row['title']}</td>
-                                <td>{$row['call_number']}</td>
-                                <td>
-                                    <a href='edit_book.php?id={$row['id']}' class='action-btn edit'><i class='fas fa-edit'></i></a>
-                                    <a href='?delete_book={$row['id']}' class='action-btn delete' onclick='return confirm(\"Delete this book?\")'><i class='fas fa-trash'></i></a>
-                                </td>
-                            </tr>";
+                        <?php 
+                        $res = $conn->query("SELECT id, title FROM books ORDER BY id DESC LIMIT 10");
+                        while($row = $res->fetch_assoc()) {
+                            echo "<tr><td>{$row['title']}</td><td><a href='?delete_book={$row['id']}' class='action-btn delete'><i class='fas fa-trash'></i></a></td></tr>";
                         }
                         ?>
                     </tbody>
@@ -143,37 +150,31 @@ if (isset($_POST['add_student'])) {
             </div>
         </div>
 
-        <!-- RIGHT COLUMN: STUDENTS -->
         <div class="card">
-            <h2><i class="fas fa-users"></i> Manage Students</h2>
-            
-            <!-- ADD STUDENT FORM -->
-            <form method="POST" style="background:#f9f9f9; padding:15px; margin-bottom:20px; border:1px solid #eee;">
-                <strong>Add New Student</strong>
+            <h2><i class="fas fa-users"></i> Manage Patrons</h2>
+            <form method="POST">
+                <strong>Add New Patron</strong>
                 <div style="margin-top:10px;">
-                    <input type="text" name="full_name" placeholder="Student Name" required>
-                    <input type="text" name="card_number" placeholder="Admission Number (Unique)" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="text" name="card_number" placeholder="Admission Number" required>
                     <input type="text" name="phone" placeholder="Phone Number">
+                    <label style="font-size:0.9rem; font-weight:bold;">Category:</label>
+                    <select name="category" required>
+                        <option value="UG">UG Student (Max 3 Books)</option>
+                        <option value="PG">PG Student (Max 4 Books)</option>
+                        <option value="Staff">Staff (Max 4 Books)</option>
+                    </select>
                 </div>
-                <button type="submit" name="add_student" class="btn-add">Add Student</button>
+                <button type="submit" name="add_student" class="btn-add">Add Patron</button>
             </form>
-
-            <!-- STUDENT LIST -->
-            <div style="max-height: 400px; overflow-y: auto;">
+             <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
                 <table>
-                    <thead><tr><th>Name</th><th>Admission No</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Name</th><th>Category</th><th>Action</th></tr></thead>
                     <tbody>
-                        <?php
-                        $res = $conn->query("SELECT * FROM patrons ORDER BY id DESC");
-                        while($row = $res->fetch_assoc()){
-                            echo "<tr>
-                                <td>{$row['full_name']}</td>
-                                <td>{$row['card_number']}</td>
-                                <td>
-                                    <a href='edit_student.php?id={$row['id']}' class='action-btn edit'><i class='fas fa-edit'></i></a>
-                                    <a href='?delete_student={$row['id']}' class='action-btn delete' onclick='return confirm(\"Delete this student?\")'><i class='fas fa-trash'></i></a>
-                                </td>
-                            </tr>";
+                        <?php 
+                        $res = $conn->query("SELECT id, full_name, category FROM patrons ORDER BY id DESC LIMIT 10");
+                        while($row = $res->fetch_assoc()) {
+                            echo "<tr><td>{$row['full_name']}</td><td>{$row['category']}</td><td><a href='?delete_student={$row['id']}' class='action-btn delete'><i class='fas fa-trash'></i></a></td></tr>";
                         }
                         ?>
                     </tbody>
@@ -182,5 +183,18 @@ if (isset($_POST['add_student'])) {
         </div>
     </div>
 </div>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('themeBtn');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', currentTheme);
+    
+    themeBtn.addEventListener('click', () => {
+        let theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    });
+</script>
 </body>
 </html>

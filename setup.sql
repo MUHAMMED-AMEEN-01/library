@@ -40,3 +40,24 @@ CREATE TABLE IF NOT EXISTS `checkouts` (
   FOREIGN KEY (`book_id`) REFERENCES `books`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`patron_id`) REFERENCES `patrons`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- Run this in PHPMyAdmin to add the admin table
+CREATE TABLE IF NOT EXISTS `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL, -- We will store hashed passwords
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert a default admin user (Username: admin, Password: password123)
+-- Note: In a real app, use password_hash(). For this example, we will use simple text for learning.
+INSERT INTO `admins` (`username`, `password`) VALUES ('admin', 'password123');
+
+-- 1. Add Category to Patrons (Students/Staff)
+-- This lets us know if they are UG, PG, or Staff
+ALTER TABLE patrons ADD COLUMN category ENUM('UG', 'PG', 'Staff') DEFAULT 'UG';
+
+-- 2. Add Fine Amount to Checkouts
+-- This stores how much fine was paid when a book is returned
+ALTER TABLE checkouts ADD COLUMN fine_amount DECIMAL(10,2) DEFAULT 0.00;
